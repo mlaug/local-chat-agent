@@ -21,10 +21,11 @@ class ConvertToMp3(FlowStep):
         os.makedirs(tmp_dir, exist_ok=True)
 
         # Generate a unique filename
-        filename = os.path.join(tmp_dir, f"{uuid.uuid4()}.mp3")
+        filename = f"{uuid.uuid4()}.mp3"
+        pathname = os.path.join(tmp_dir, filename)
 
         # Export the AudioSegment to MP3 format and save to file
-        audio.export(filename, format="mp3")
+        audio.export(pathname, format="mp3")
 
         # Return the filename
         return filename
