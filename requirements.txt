@@ -1,0 +1,9 @@
+pyaudio
+speechrecognition
+soco
+pydub
+requests
+mistralai
+pvorca
+pvporcupine
+python-dotenv

@@ -1,0 +1,26 @@
+{
+    "name": "Python DevContainer",
+    "build": {
+        "dockerfile": "../Dockerfile"
+    },
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "python.pythonPath": "/usr/local/bin/python",
+                "python.formatting.autopep8Path": "/usr/local/bin/autopep8",
+                "python.linting.enabled": true,
+                "python.linting.pylintEnabled": true,
+                "python.linting.flake8Enabled": true,
+                "editor.formatOnSave": true
+            },
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-toolsai.jupyter"
+            ]
+        }
+    },
+    "forwardPorts": [],
+    "postCreateCommand": "pip install -r requirements.txt",
+    "remoteUser": "vscode"
+}
