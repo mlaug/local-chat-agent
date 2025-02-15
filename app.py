@@ -18,7 +18,7 @@ FORMAT = pyaudio.paInt16
 CHANNELS = 1
 RATE = 16000
 CHUNK = 1024
-DEVICE_ID = 2  # Use the MacBook Pro Microphone
+DEVICE_ID = int(os.getenv("DEVICE_ID") or "1")  # Use the MacBook Pro Microphone
 
 class FlowManager:
     def __init__(self):
