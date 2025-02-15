@@ -3,12 +3,14 @@ import sys
 
 import pyaudio
 from flow.Flow import Flow
+from flow.steps.ConvertToMp3 import ConvertToMp3
 from flow.steps.WakeWord import WakeWord
 from flow.steps.Record import Record
 from flow.steps.Transcribe import Transcribe
 from flow.steps.AskLeChat import AskLeChat
 from flow.steps.TextToSpeech import TextToSpeech
 from flow.steps.PlayAudio import PlayAudio
+from flow.steps.PlayAudioOnSonos import PlayAudioOnSonos
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -46,9 +48,17 @@ class FlowManager:
         askLeChat = AskLeChat()
         textToSpeech = TextToSpeech()
         playAudio = PlayAudio()
+        playAudioOnSonos = PlayAudioOnSonos()
+        convertToMp3 = ConvertToMp3()
 
         # Chain the steps:
-        self.flow.waitFor(wake_word).then(record).then(transcribe).then(askLeChat).then(textToSpeech).then(playAudio).loop().start()
+        # local setup
+        #self.flow.waitFor(wake_word).then(record).then(transcribe).then(askLeChat).then(textToSpeech).then(playAudio).loop().start()
+
+        # rasperry pi setup with sonos integration
+        #self.flow.waitFor(wake_word).then(record).then(transcribe).then(askLeChat).then(textToSpeech).then(convertToMp3).then(playAudioOnSonos).loop().start()
+
+        self.flow.then(record).then(convertToMp3).then(playAudioOnSonos).start()
 
     def cleanup(self):
         self.flow.cleanup()

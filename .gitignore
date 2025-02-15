@@ -122,3 +122,4 @@ cython_debug/
 
 # Mac specfic
 .DS_Store
+tmp
