@@ -34,3 +34,19 @@ python app.py
 The default flow waits for the wake word and performs the full voice interaction loop. Press `Ctrl+C` to stop the program gracefully.
 
 The assistant is configured to respond in a very simple "explain like I'm five" manner. It also filters replies for potentially inappropriate language so that responses remain child friendly.
+
+## Development Container
+
+The repository includes a VS Code devcontainer configuration for testing audio
+input and output entirely inside Docker. On macOS you need a running PulseAudio
+server on the host:
+
+```bash
+brew install pulseaudio
+pulseaudio --load=module-native-protocol-tcp --exit-idle-time=-1
+```
+
+After starting the server, open the project in VS Code and choose **Reopen in
+Container**. The devcontainer connects to the host's PulseAudio instance at
+`host.docker.internal:4713`, allowing microphone and speaker access from inside
+the container.
