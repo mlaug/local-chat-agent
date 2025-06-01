@@ -31,9 +31,10 @@ class Flow:
                     self._stop_event.set()
                 time.sleep(0.5)
 
-        self._recording_thread = threading.Thread(target=interrupt_wrapper)
-        self._recording_thread.daemon = True
-        self._recording_thread.start()
+        # keep a reference so we can join the thread on cleanup
+        self._interrupt_thread = threading.Thread(target=interrupt_wrapper)
+        self._interrupt_thread.daemon = True
+        self._interrupt_thread.start()
         return self
 
     def handle(self, exception_type, handler_function):
