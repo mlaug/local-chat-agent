@@ -1,9 +1,12 @@
-from flow.FlowStep import FlowStep
-from pydub import AudioSegment
 import io
-import sys
 import os
+import sys
 import uuid
+
+from pydub import AudioSegment
+
+from flow.FlowStep import FlowStep
+
 
 class ConvertToMp3(FlowStep):
     # Expects audio data (bytes) and returns a status message (string).
@@ -11,13 +14,13 @@ class ConvertToMp3(FlowStep):
     output_type = str
 
     def execute(self, input_data):
-        audio = AudioSegment.from_file(io.BytesIO(input_data), format="raw", sample_width=2, frame_rate=16000, channels=1)
+        audio = AudioSegment.from_file(io.BytesIO(input_data), format="wav")
 
         # Determine the root directory of the application
         root_dir = os.getenv("TMP_DIR") or os.path.dirname(os.path.abspath(sys.argv[0]))
 
         # Ensure the tmp directory exists in the root directory
-        tmp_dir = os.path.join(root_dir, 'tmp')
+        tmp_dir = os.path.join(root_dir, "tmp")
         os.makedirs(tmp_dir, exist_ok=True)
 
         # Generate a unique filename
