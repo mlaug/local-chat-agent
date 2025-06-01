@@ -2,6 +2,11 @@ from flow.FlowStep import FlowStep
 from mistralai import Mistral
 import os
 
+try:
+    from langdetect import detect
+except Exception:
+    detect = None
+
 BANNED_WORDS = {
     "sex",
     "porn",
@@ -20,13 +25,39 @@ class AskLeChat(FlowStep):
     def __init__(self) -> None:
         self.client = Mistral(api_key=os.getenv("LE_CHAT_API_KEY"))
 
+    def _detect_language(self, text: str) -> str:
+        """Return ISO code for detected language (en, de, es)."""
+        if detect is not None:
+            try:
+                code = detect(text)
+            except Exception:
+                code = "en"
+        else:
+            words = set(text.lower().split())
+            score = {"en": 0, "de": 0, "es": 0}
+            for word in ("the", "and", "is"):
+                if word in words:
+                    score["en"] += 1
+            for word in ("und", "ist", "nicht", "wie", "geht"):
+                if word in words:
+                    score["de"] += 1
+            for word in ("y", "el", "la", "como", "estas"):
+                if word in words:
+                    score["es"] += 1
+            code = max(score, key=score.get)
+        if code not in ("en", "de", "es"):
+            code = "en"
+        return code
+
     def execute(self, input_data):
         print("Chatting with Le Chat...")
         try:
+            lang_code = self._detect_language(input_data)
+            lang_names = {"en": "English", "de": "German", "es": "Spanish"}
             system_prompt = (
                 "You are a friendly assistant for children. "
-                "Answer every question in a simple way a five-year-old could understand. "
-                "Never include content that is inappropriate for kids." 
+                f"Answer every question in {lang_names[lang_code]} in a simple way a five-year-old could understand. "
+                "Never include content that is inappropriate for kids."
                 "If the user requests something adult or unsafe, respond with 'I can't talk about that.'"
             )
             chat_response = self.client.chat.complete(
