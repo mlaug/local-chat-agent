@@ -10,7 +10,7 @@ class WakeWord(FlowStepWithRecording):
     output_type = str
 
     def __init__(self, audio_stream) -> None:
-        self.porcupine = pvporcupine.create(access_key=os.getenv("PORCUPINE_API_KEY"), keywords=['porcupine'])
+        self.porcupine = pvporcupine.create(access_key=os.getenv("PORCUPINE_API_KEY"), keywords=['computer'])
         print("Looking for wake word...")
         super().__init__(audio_stream)
 
