@@ -18,6 +18,8 @@ PORCUPINE_API_KEY=<your_porcupine_key>
 LE_CHAT_API_KEY=<your_mistral_key>
 ORCA_API_KEY=<your_orca_key>
 DEVICE_ID=<mic_device_id>  # optional, defaults to 1
+OLLAMA_ENDPOINT=http://localhost:11434/api/generate  # optional
+OLLAMA_MODEL=llama3  # optional
 ```
 
 Use `python helper/channels.py` to list available microphone device IDs.
@@ -32,6 +34,10 @@ python app.py
 ```
 
 The default flow waits for the wake word and performs the full voice interaction loop. Press `Ctrl+C` to stop the program gracefully.
+
+If you want to use a locally deployed Ollama model instead of Mistral's API,
+set the environment variable `USE_OLLAMA=1`. The step will communicate with the
+endpoint defined by `OLLAMA_ENDPOINT`.
 
 The assistant is configured to respond in a very simple "explain like I'm five" manner. It also filters replies for potentially inappropriate language so that responses remain child friendly.
 

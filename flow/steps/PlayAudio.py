@@ -1,7 +1,10 @@
-from flow.FlowStep import FlowStep
+import io
+
 from pydub import AudioSegment
 from pydub.playback import play
-import io
+
+from flow.FlowStep import FlowStep
+
 
 class PlayAudio(FlowStep):
     # Expects audio data (bytes) and returns a status message (string).
@@ -13,8 +16,9 @@ class PlayAudio(FlowStep):
             # Convert bytes to a BytesIO object
             audio_bytes_io = io.BytesIO(input_data)
 
-            # Load the audio data using pydub
-            audio = AudioSegment.from_file(audio_bytes_io, format="raw", sample_width=2, frame_rate=16000, channels=1)
+            # Load the audio data as WAV so the sample rate and channels are
+            # preserved from the source file.
+            audio = AudioSegment.from_file(audio_bytes_io, format="wav")
 
             # Play the audio
             play(audio)
