@@ -51,14 +51,23 @@ class FlowManager:
         playAudioOnSonos = PlayAudioOnSonos()
         convertToMp3 = ConvertToMp3()
 
-        # Chain the steps:
-        # local setup
-        #self.flow.waitFor(wake_word).then(record).then(transcribe).then(askLeChat).then(textToSpeech).then(playAudio).loop().start()
+        # Chain the steps.
+        # By default we run the local setup which performs the full
+        # wake word -> record -> transcribe -> chat -> TTS -> playback flow.
+        # To use the Sonos integration on a Raspberry Pi, comment the line
+        # below and uncomment the alternative chain.
 
-        # rasperry pi setup with sonos integration
-        #self.flow.waitFor(wake_word).then(record).then(transcribe).then(askLeChat).then(textToSpeech).then(convertToMp3).then(playAudioOnSonos).loop().start()
+        self.flow.waitFor(wake_word)\
+            .then(record)\
+            .then(transcribe)\
+            .then(askLeChat)\
+            .then(textToSpeech)\
+            .then(playAudio)\
+            .loop()\
+            .start()
 
-        self.flow.then(record).then(convertToMp3).then(playAudioOnSonos).start()
+        # Raspberry Pi setup with Sonos integration
+        # self.flow.waitFor(wake_word).then(record).then(transcribe).then(askLeChat).then(textToSpeech).then(convertToMp3).then(playAudioOnSonos).loop().start()
 
     def cleanup(self):
         self.flow.cleanup()
