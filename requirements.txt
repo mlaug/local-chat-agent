@@ -7,3 +7,5 @@ mistralai
 pvorca
 pvporcupine
 python-dotenv
+pyttsx3
+langdetect

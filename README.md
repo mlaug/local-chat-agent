@@ -8,6 +8,7 @@ This repository provides a simple flow-based prototype that listens for a wake w
 - PortAudio installed (`brew install portaudio` on macOS)
 - [Porcupine](https://github.com/Picovoice/porcupine) and [Orca](https://github.com/picovoice/orca) API keys
 - `pyaudio` and other Python dependencies from `requirements.txt`
+- Optional: `pyttsx3` for offline text to speech
 
 ## Environment Variables
 
@@ -40,6 +41,14 @@ set the environment variable `USE_OLLAMA=1`. The step will communicate with the
 endpoint defined by `OLLAMA_ENDPOINT`.
 
 The assistant is configured to respond in a very simple "explain like I'm five" manner. It also filters replies for potentially inappropriate language so that responses remain child friendly.
+
+### Offline text to speech
+
+If no `ORCA_API_KEY` is provided the application falls back to [`pyttsx3`](https://pyttsx3.readthedocs.io/) for speech synthesis. This runs entirely locally but you need a TTS engine available on your system.
+
+### Multilingual input
+
+Speech can be provided in German, English or Spanish. The detected language is used for the reply so the assistant answers in the same language.
 
 ## Development Container
 
