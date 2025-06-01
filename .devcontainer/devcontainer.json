@@ -3,6 +3,10 @@
     "build": {
         "dockerfile": "../Dockerfile"
     },
+    "runArgs": [
+        "-e", "PULSE_SERVER=host.docker.internal:4713",
+        "-v", "${localEnv:HOME}/.config/pulse:/home/vscode/.config/pulse:ro"
+    ],
     "customizations": {
         "vscode": {
             "settings": {
