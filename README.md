@@ -21,6 +21,7 @@ ORCA_API_KEY=<your_orca_key>
 DEVICE_ID=<mic_device_id>  # optional, defaults to 1
 OLLAMA_ENDPOINT=http://localhost:11434/api/generate  # optional
 OLLAMA_MODEL=llama3  # optional
+USE_BARK=1  # optional, use Bark for TTS if installed
 ```
 
 Use `python helper/channels.py` to list available microphone device IDs.
@@ -45,6 +46,11 @@ The assistant is configured to respond in a very simple "explain like I'm five" 
 ### Offline text to speech
 
 If no `ORCA_API_KEY` is provided the application falls back to [`pyttsx3`](https://pyttsx3.readthedocs.io/) for speech synthesis. This runs entirely locally but you need a TTS engine available on your system.
+Alternatively, set `USE_BARK=1` to use [Bark](https://github.com/suno-ai/bark) for local speech synthesis. Install it with:
+
+```bash
+pip install git+https://github.com/suno-ai/bark.git
+```
 
 ### Multilingual input
 

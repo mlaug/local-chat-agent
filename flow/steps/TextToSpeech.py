@@ -1,12 +1,23 @@
 from flow.FlowStep import FlowStep
-import pvorca
 import tempfile
 import os
+import pvorca
+
+USE_BARK = os.getenv("USE_BARK") == "1"
 
 try:
     import pyttsx3
 except Exception:
     pyttsx3 = None
+
+if USE_BARK:
+    try:
+        from bark import SAMPLE_RATE, generate_audio
+        from scipy.io.wavfile import write as write_wav
+    except Exception:
+        generate_audio = None
+        SAMPLE_RATE = None
+        write_wav = None
 
 class TextToSpeech(FlowStep):
     # Expects a string (chat response) and returns audio data as bytes.
@@ -14,11 +25,17 @@ class TextToSpeech(FlowStep):
     output_type = bytes
 
     def __init__(self) -> None:
-        access_key = os.getenv("ORCA_API_KEY") or ""
-        self.orca = pvorca.create(access_key=access_key) if access_key else None
-        if not self.orca and pyttsx3:
-            self.engine = pyttsx3.init()
+        self.use_bark = USE_BARK and generate_audio is not None
+
+        if not self.use_bark:
+            access_key = os.getenv("ORCA_API_KEY") or ""
+            self.orca = pvorca.create(access_key=access_key) if access_key else None
+            if not self.orca and pyttsx3:
+                self.engine = pyttsx3.init()
+            else:
+                self.engine = None
         else:
+            self.orca = None
             self.engine = None
         super().__init__()
 
@@ -27,7 +44,12 @@ class TextToSpeech(FlowStep):
         with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_wav_file:
             temp_wav_path = temp_wav_file.name
 
-        if self.orca is not None:
+        if self.use_bark:
+            if generate_audio is None:
+                raise RuntimeError("USE_BARK is set but bark is not installed")
+            audio_array = generate_audio(input_data)
+            write_wav(temp_wav_path, SAMPLE_RATE, audio_array)
+        elif self.orca is not None:
             # Synthesize speech via Orca
             self.orca.synthesize_to_file(text=input_data, output_path=temp_wav_path)
         elif self.engine is not None:
