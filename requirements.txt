@@ -9,3 +9,5 @@ pvporcupine
 python-dotenv
 pyttsx3
 langdetect
+transformers
+scipy

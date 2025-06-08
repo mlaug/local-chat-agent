@@ -15,7 +15,7 @@ class AskOllama(FlowStep):
         self.endpoint = os.getenv(
             "OLLAMA_ENDPOINT", "http://localhost:11434/api/generate"
         )
-        self.model = os.getenv("OLLAMA_MODEL", "llama3")
+        self.model = os.getenv("OLLAMA_MODEL", "llama3.2")
         super().__init__()
 
     def execute(self, input_data: str) -> str:

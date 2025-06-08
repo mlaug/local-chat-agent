@@ -55,9 +55,6 @@ class FlowManager:
             askModel = AskLeChat()
         textToSpeech = TextToSpeech()
         playAudio = PlayAudio()
-        # These are used on Raspberry Pi for Sonos integration
-        _playAudioOnSonos = PlayAudioOnSonos()
-        _convertToMp3 = ConvertToMp3()
 
         # Chain the steps.
         # By default we run the local setup which performs the full
