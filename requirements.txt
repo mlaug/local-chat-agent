@@ -10,4 +10,7 @@ python-dotenv
 pyttsx3
 langdetect
 transformers
+accelerate
 scipy
+soundfile
+nvidia-riva-client

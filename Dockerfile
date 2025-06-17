@@ -1,61 +1,64 @@
-# Add vscode user for Jetson-compatible PyTorch 2.6.0 container with audio/video support
-
-FROM nvcr.io/nvidia/pytorch:24.12-py3-igpu
+# Jetson-compatible PyTorch 2.7.1 with audio and vision support (CUDA 12.6, Ubuntu 24.04)
+FROM nvcr.io/nvidia/l4t-jetpack:r36.4.0
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV CUDA_VERSION=12.6
-ENV TORCH_VERSION=2.6.0
+ENV TORCH_VERSION=2.7.1
+ENV TORCH_AUDIO_VERSION=2.7.1
+ENV TORCH_VISION_VERSION=0.22.0
+ENV TORCH_CUDA_ARCH_LIST="8.7"
+ENV CUDA_HOME=/usr/local/cuda
+ENV TORCH_USE_XCCL=0
+ENV PATH="/home/vscode/.local/bin:$PATH"
 
-# Create vscode user
-RUN useradd -ms /bin/bash vscode && \
-    usermod -aG sudo vscode
-
-# Install system packages
-RUN apt-get update && \
-    apt-get install -y \
-    sudo \
-    wget \
-    git \
-    build-essential \
-    ffmpeg \
-    libavcodec-dev \
-    libavformat-dev \
-    libswscale-dev \
-    libavdevice-dev \
-    libavutil-dev \
-    libasound2-dev \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    libsndfile1 \
-    libportaudio2 \
-    libportaudiocpp0 \
-    portaudio19-dev \
-    python3-pyaudio \
-    python3-pip && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Optional: cuSPARSELt for PyTorch 2.6+
-RUN wget https://raw.githubusercontent.com/pytorch/pytorch/5c6af2b583709f6176898c017424dc9981023c28/.ci/docker/common/install_cusparselt.sh && \
-    bash install_cusparselt.sh && \
-    rm install_cusparselt.sh
-
-# Install PyTorch 2.6.0 for JetPack 6.0
-RUN wget https://developer.download.nvidia.com/compute/redist/jp/v60dp/pytorch/torch-2.6.0+nv24.12-cp310-cp310-linux_aarch64.whl && \
-    pip install torch-2.6.0+nv24.12-cp310-cp310-linux_aarch64.whl && \
-    rm torch-2.6.0+nv24.12-cp310-cp310-linux_aarch64.whl
-
-# Install supporting libraries
-RUN pip install --no-cache-dir \
-    torchvision \
-    torchaudio \
-    opencv-python-headless \
-    pyaudio
-
-# Set default user
+# Create user
+RUN useradd -ms /bin/bash vscode
 USER vscode
+WORKDIR /home/vscode
+
+# Install dependencies (system + build + Python)
+USER root
+RUN apt-get update && \
+    apt-get install -y wget git cmake ninja-build build-essential curl gnupg \
+    ffmpeg libavcodec-dev libavformat-dev libswscale-dev libavdevice-dev libavutil-dev \
+    libasound2-dev libglib2.0-0 libsm6 libxext6 libxrender-dev \
+    libsndfile1 libportaudio2 libportaudiocpp0 portaudio19-dev python3-pyaudio \
+    libopenblas-dev libblas-dev m4 libffi-dev libssl-dev python3-dev python3-pip \
+    libjpeg-dev zlib1g-dev libpng-dev python3-venv python3-typing-extensions \
+    unzip && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Python upgrades
+USER vscode
+RUN pip3 install --upgrade pip && \
+    pip3 install "numpy>=2.0.0"
+
+# Clone and build PyTorch
+RUN git clone --recursive https://github.com/pytorch/pytorch && \
+    cd pytorch && \
+    git checkout v${TORCH_VERSION} && \
+    git submodule sync && git submodule update --init --recursive && \
+    pip3 install -r requirements.txt && \
+    USE_CUDA=1 TORCH_CUDA_ARCH_LIST=${TORCH_CUDA_ARCH_LIST} CUDA_HOME=${CUDA_HOME} \
+    CMAKE_PREFIX_PATH=$(python3 -c "from sysconfig import get_paths as gp; print(gp()['purelib'])") \
+    python3 setup.py bdist_wheel && \
+    pip3 install dist/*.whl
+
+# Clone and build TorchVision
+RUN git clone --recursive https://github.com/pytorch/vision && \
+    cd vision && \
+    git checkout v${TORCH_VISION_VERSION} && \
+    git submodule sync && git submodule update --init --recursive && \
+    python3 setup.py bdist_wheel && \
+    pip3 install dist/*.whl
+
+# Clone and build TorchAudio
+RUN git clone --recursive https://github.com/pytorch/audio && \
+    cd audio && \
+    git checkout v${TORCH_AUDIO_VERSION} && \
+    git submodule sync && git submodule update --init --recursive && \
+    python3 setup.py bdist_wheel && \
+    pip3 install dist/*.whl
+
+WORKDIR /home/vscode
 
 CMD [ "bash" ]
